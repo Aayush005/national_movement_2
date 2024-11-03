@@ -1,0 +1,1634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>National Movement MCQ Quiz</title>
+    <style>
+        /* Reset some default styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f0f8ff, #e6f7ff);
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Accommodate fixed elements */
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* Timer Styling */
+        .timer {
+            position: fixed;          /* Fixes the position relative to the viewport */
+            top: 20px;                /* Positions 20px from the top */
+            right: 20px;              /* Positions 20px from the right */
+            font-size: 1.5rem;        /* Sets a readable font size */
+            color: #d9534f;           /* Sets the text color (red) */
+            font-weight: bold;        /* Makes the text bold */
+            z-index: 1000;            /* Ensures the timer stays above other elements */
+            background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent background */
+            padding: 10px 15px;       /* Adds padding around the timer text */
+            border-radius: 5px;       /* Rounds the corners of the timer box */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Adds a subtle shadow for depth */
+        }
+
+        /* Question Map Sidebar Styling */
+        .question-map {
+            position: fixed;          
+            top: 80px;                /* Positioned below the timer */
+            right: 20px;               /* Positioned on the right */
+            width: 180px;              /* Increased width to accommodate 5 columns */
+            background-color: rgba(255, 255, 255, 0.9); 
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            z-index: 999;             
+            max-height: 90vh;         
+            overflow-y: auto;         
+        }
+
+        .question-map h2 {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+            color: #007bff;
+        }
+
+        /* Update #questionLinks to Use CSS Grid */
+        #questionLinks {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-gap: 5px; /* Adjust the spacing between links as needed */
+            justify-items: center; /* Centers the links within each grid cell */
+        }
+
+        /* Adjust .question-map .question-link Styling */
+        .question-map .question-link {
+            padding: 5px 0; /* Reduces vertical padding */
+            font-size: 0.9rem; /* Slightly smaller font size for better fit */
+            width: 100%; /* Ensures the link takes the full width of the grid cell */
+            box-sizing: border-box; /* Includes padding and border in the element's total width and height */
+            border-radius: 4px; /* Maintains rounded corners */
+            text-align: center; /* Centers the text within the link */
+            background-color: #f8f9fa;
+            color: #007bff;
+            text-decoration: none;
+            border: 1px solid #007bff;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .question-map .question-link:hover {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        /* Add Correct and Incorrect Classes for Highlighting */
+        .question-map .question-link.correct {
+            background-color: #28a745; /* Green background */
+            color: #fff; /* White text */
+            border-color: #28a745; /* Green border */
+        }
+
+        .question-map .question-link.incorrect {
+            background-color: #dc3545; /* Red background */
+            color: #fff; /* White text */
+            border-color: #dc3545; /* Red border */
+        }
+
+        /* Add Attempted Class for Highlighting */
+        .question-map .question-link.attempted {
+            background-color: #17a2b8; /* Blue background for attempted questions */
+            color: #fff; /* White text */
+            border-color: #17a2b8; /* Blue border */
+        }
+
+        /* Submit Button and Score Styling */
+        .question-map .submit-section {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .question-map .submit-btn {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+            margin-bottom: 10px;
+        }
+
+        .question-map .submit-btn:hover {
+            background-color: #218838;
+        }
+
+        .question-map .submit-btn:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+
+        .question-map .result {
+            font-size: 1rem;
+            font-weight: bold;
+            color: #17a2b8;
+        }
+
+        /* Smooth Scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Quiz Container Styling */
+        .quiz-container {
+            background-color: #fff;
+            padding: 30px 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            max-width: 800px;
+            width: 100%;
+            margin-right: 200px; /* Accommodates the question map sidebar on the right */
+            margin-top: 50px;     /* Maintains spacing from the top */
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #007bff;
+        }
+
+        .question {
+            margin-bottom: 25px;
+        }
+
+        .question p {
+            margin-bottom: 10px;
+            font-weight: 500;
+        }
+
+        .options label {
+            display: block;
+            margin-bottom: 8px;
+            padding: 10px 15px;
+            border: 2px solid #007bff;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .options input[type="radio"] {
+            display: none;
+        }
+
+        .options input[type="radio"]:checked + label {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        .options label:hover {
+            background-color: #e6f0ff;
+        }
+
+        .submit-btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: background-color 0.3s;
+            margin-top: 20px;
+        }
+
+        .submit-btn:hover {
+            background-color: #218838;
+        }
+
+        .submit-btn:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+
+        .result {
+            margin-top: 30px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            text-align: center;
+            color: #17a2b8;
+        }
+
+        /* Feedback Message Styling */
+        .feedback {
+            margin-top: 10px;
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        .feedback.right {
+            color: #28a745; /* Green for correct answers */
+        }
+
+        .feedback.wrong {
+            color: #dc3545; /* Red for incorrect answers */
+        }
+
+        .feedback.not-attempted {
+            color: #6c757d; /* Gray for not attempted */
+        }
+
+        /* Alert when time is low */
+        .alert {
+            animation: blink 1s steps(5, start) infinite;
+        }
+
+        @keyframes blink {
+            to {
+                visibility: hidden;
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .quiz-container {
+                margin-right: 0; /* Removes right margin on small screens */
+            }
+
+            .question-map {
+                display: none; /* Hides the question map on small screens */
+            }
+
+            .toggle-question-map {
+                display: block; /* Shows toggle button on small screens */
+            }
+        }
+
+        /* Toggle Button for Question Map (Visible on Small Screens) */
+        .toggle-question-map {
+            position: fixed;
+            top: 20px;
+            right: 20px; /* Positioned on the right */
+            z-index: 1001;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: none; /* Hidden by default */
+        }
+
+        /* Active State for Question Map on Small Screens */
+        .question-map.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Timer Display -->
+    <div class="timer" id="timer">10:00</div>
+
+    <!-- Toggle Button for Question Map (Visible on Small Screens) -->
+    <button class="toggle-question-map" id="toggleQuestionMap">☰</button>
+
+    <!-- Question Map Sidebar -->
+    <div class="question-map" id="questionMap">
+        <h2>Question Map</h2>
+        <div id="questionLinks">
+            <!-- Question links will be injected here by JavaScript -->
+        </div>
+        <!-- Submit Button and Score Display Below the Question Links -->
+        <div class="submit-section">
+            <button type="button" class="submit-btn" id="submitBtn" onclick="checkAnswers()">Submit</button>
+            <div id="result" class="result"></div>
+        </div>
+    </div>
+
+    <div class="quiz-container">
+        <h1>National Movement MCQ Quiz</h1>
+        
+        <form id="quizForm">
+            <!-- Questions will be injected here by JavaScript -->
+        </form>
+
+        <!-- Submit Button and Score Display Below the Questions List -->
+        <div class="submit-section">
+            <button type="button" class="submit-btn" id="submitBtnBelow" onclick="checkAnswers()">Submit</button>
+            <div id="resultBelow" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+        // Declare shuffledQuestions globally
+        let shuffledQuestions = [];
+
+        const questions = [
+  // 1. Lord Dalhousie (1848 - 1856)
+  {
+    id: 'q1',
+    question: 'What policy did Lord Dalhousie implement to annex princely states without direct heirs?',
+    options: [
+      { text: 'Subsidiary Alliance', isCorrect: false },
+      { text: 'Doctrine of Lapse', isCorrect: true },
+      { text: 'Permanent Settlement', isCorrect: false },
+      { text: 'Revenue Sharing', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q2',
+    question: 'Which Despatch laid the foundation for modern education in India during Dalhousie\'s reign?',
+    options: [
+      { text: 'Wood Despatch', isCorrect: true },
+      { text: 'Hunter Despatch', isCorrect: false },
+      { text: 'Morley Despatch', isCorrect: false },
+      { text: 'Macaulay Despatch', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q3',
+    question: 'When was the first railway line between Mumbai and Thane inaugurated?',
+    options: [
+      { text: '16 April 1853', isCorrect: true },
+      { text: '1 May 1850', isCorrect: false },
+      { text: '23 March 1855', isCorrect: false },
+      { text: '10 June 1852', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q4',
+    question: 'Lord Dalhousie is known as the "Father of ___" in India.',
+    options: [
+      { text: 'Education', isCorrect: false },
+      { text: 'Railways', isCorrect: true },
+      { text: 'Judiciary', isCorrect: false },
+      { text: 'Postal Services', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q5',
+    question: 'Which Act introduced competitive examinations for officer appointments in 1853?',
+    options: [
+      { text: 'Charter Act', isCorrect: true },
+      { text: 'Government of India Act', isCorrect: false },
+      { text: 'Public Service Act', isCorrect: false },
+      { text: 'Colonial Administration Act', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q6',
+    question: 'What was established as the summer capital by Lord Dalhousie?',
+    options: [
+      { text: 'Delhi', isCorrect: false },
+      { text: 'Mumbai', isCorrect: false },
+      { text: 'Shimla', isCorrect: true },
+      { text: 'Kolkata', isCorrect: false }
+    ]
+  },
+
+  // 2. Lord Canning (1856 - 1862)
+  {
+    id: 'q7',
+    question: 'Which major event occurred during Lord Canning\'s tenure in 1857?',
+    options: [
+      { text: 'Second Anglo-Afghan War', isCorrect: false },
+      { text: 'Indian Rebellion of 1857', isCorrect: true },
+      { text: 'Partition of Bengal', isCorrect: false },
+      { text: 'Formation of Indian National Congress', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q8',
+    question: 'Under which Act was the Mughal Emperor\'s title abolished?',
+    options: [
+      { text: 'Government of India Act 1858', isCorrect: true },
+      { text: 'Charter Act 1853', isCorrect: false },
+      { text: 'High Court Act 1861', isCorrect: false },
+      { text: 'Vernacular Press Act 1878', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q9',
+    question: 'Lord Canning was the last Governor-General and the first ___ of India.',
+    options: [
+      { text: 'Viceroy', isCorrect: true },
+      { text: 'Prime Minister', isCorrect: false },
+      { text: 'President', isCorrect: false },
+      { text: 'Secretary', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q10',
+    question: 'Which Act established High Courts in Calcutta, Madras, and Mumbai?',
+    options: [
+      { text: 'Charter Act', isCorrect: false },
+      { text: 'High Court Act', isCorrect: true },
+      { text: 'Vernacular Press Act', isCorrect: false },
+      { text: 'Government of India Act', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q11',
+    question: 'What social reform was continued during Lord Canning\'s tenure?',
+    options: [
+      { text: 'Widow Remarriage Act', isCorrect: true },
+      { text: 'Child Marriage Act', isCorrect: false },
+      { text: 'Temperance Movement', isCorrect: false },
+      { text: 'Abolition of Sati', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q12',
+    question: 'Which position was created in 1857 during Canning\'s rule to oversee financial matters?',
+    options: [
+      { text: 'Finance Minister', isCorrect: false },
+      { text: 'Auditor General', isCorrect: true },
+      { text: 'Treasurer', isCorrect: false },
+      { text: 'Chief Accountant', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q13',
+    question: 'Which policy was abolished by Lord Canning?',
+    options: [
+      { text: 'Doctrine of Lapse', isCorrect: true },
+      { text: 'Subsidiary Alliance', isCorrect: false },
+      { text: 'Permanent Settlement', isCorrect: false },
+      { text: 'Revenue Sharing', isCorrect: false }
+    ]
+  },
+
+  // 3. Lord Elgin (1862 - 1863)
+  {
+    id: 'q14',
+    question: 'Which movement was suppressed by Lord Elgin?',
+    options: [
+      { text: 'Swadeshi Movement', isCorrect: false },
+      { text: 'Wahhabi Movement', isCorrect: true },
+      { text: 'Non-Cooperation Movement', isCorrect: false },
+      { text: 'Khilafat Movement', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q15',
+    question: 'Who prepared the Indian Budget in 1860?',
+    options: [
+      { text: 'Lord Elgin', isCorrect: false },
+      { text: 'Lord Mackarel', isCorrect: true },
+      { text: 'Lord Dalhousie', isCorrect: false },
+      { text: 'Lord Canning', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q16',
+    question: 'Which tax was introduced in India for the first time under Lord Elgin?',
+    options: [
+      { text: 'Property Tax', isCorrect: false },
+      { text: 'Income Tax', isCorrect: true },
+      { text: 'Sales Tax', isCorrect: false },
+      { text: 'Excise Duty', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q17',
+    question: 'Which codes were codified during Lord Elgin\'s tenure?',
+    options: [
+      { text: 'Civil and Criminal Codes', isCorrect: false },
+      { text: 'Indian Penal Code and Criminal Procedure Code', isCorrect: true },
+      { text: 'Revenue and Taxation Codes', isCorrect: false },
+      { text: 'Judicial and Administrative Codes', isCorrect: false }
+    ]
+  },
+
+  // 4. Lord Lawrence (1864 - 1869)
+  {
+    id: 'q18',
+    question: 'In which year did Lord Lawrence invade Bhutan?',
+    options: [
+      { text: '1860', isCorrect: false },
+      { text: '1865', isCorrect: true },
+      { text: '1870', isCorrect: false },
+      { text: '1855', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q19',
+    question: 'What policy did Lord Lawrence adopt regarding Afghanistan?',
+    options: [
+      { text: 'Aggressive Intervention', isCorrect: false },
+      { text: 'Spectacular Passivity', isCorrect: true },
+      { text: 'Direct Rule', isCorrect: false },
+      { text: 'Military Occupation', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q20',
+    question: 'Which regions faced severe famines during Lawrence\'s tenure?',
+    options: [
+      { text: 'Punjab, Bengal, Bihar', isCorrect: false },
+      { text: 'Orissa, Bundelkhand, Rajputana', isCorrect: true },
+      { text: 'Madras, Bombay, Delhi', isCorrect: false },
+      { text: 'Assam, Gujarat, Rajasthan', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q21',
+    question: 'Who led the Famine Commission during Lord Lawrence\'s rule?',
+    options: [
+      { text: 'Henry Campbell', isCorrect: true },
+      { text: 'Andrew Fraser', isCorrect: false },
+      { text: 'Colin Manrick', isCorrect: false },
+      { text: 'Sir Thomas Raleigh', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q22',
+    question: 'Which telegraph service was initiated in 1865?',
+    options: [
+      { text: 'Inland Telegraph', isCorrect: false },
+      { text: 'Maritime Telegraph', isCorrect: true },
+      { text: 'Wireless Telegraph', isCorrect: false },
+      { text: 'Optical Telegraph', isCorrect: false }
+    ]
+  },
+
+  // 5. Lord Mayo (1869 - 1872)
+  {
+    id: 'q23',
+    question: 'When was the first census conducted in India?',
+    options: [
+      { text: '1869', isCorrect: false },
+      { text: '1872', isCorrect: true },
+      { text: '1880', isCorrect: false },
+      { text: '1858', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q24',
+    question: 'Which educational institution was founded by Lord Mayo in 1872?',
+    options: [
+      { text: 'Aligarh Muslim University', isCorrect: false },
+      { text: 'Mayo College', isCorrect: true },
+      { text: 'Presidency College', isCorrect: false },
+      { text: 'Banaras Hindu University', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q25',
+    question: 'What department was established in 1872 under Lord Mayo?',
+    options: [
+      { text: 'Education Department', isCorrect: false },
+      { text: 'Agriculture Department', isCorrect: true },
+      { text: 'Health Department', isCorrect: false },
+      { text: 'Finance Department', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q26',
+    question: 'How did Lord Mayo\'s tenure end?',
+    options: [
+      { text: 'Resignation', isCorrect: false },
+      { text: 'Assassination', isCorrect: true },
+      { text: 'Retirement', isCorrect: false },
+      { text: 'Transfer', isCorrect: false }
+    ]
+  },
+
+  // 6. Lord Northbrook (1872 - 1876)
+  {
+    id: 'q27',
+    question: 'Which canal\'s opening enhanced Indo-British trade during Northbrook\'s rule?',
+    options: [
+      { text: 'Grand Canal', isCorrect: false },
+      { text: 'Suez Canal', isCorrect: true },
+      { text: 'Panama Canal', isCorrect: false },
+      { text: 'Corinth Canal', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q28',
+    question: 'Which movement took place in Punjab during Northbrook\'s tenure?',
+    options: [
+      { text: 'Swadeshi Movement', isCorrect: false },
+      { text: 'Kuka Movement', isCorrect: true },
+      { text: 'Non-Cooperation Movement', isCorrect: false },
+      { text: 'Civil Disobedience Movement', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q29',
+    question: 'Who was removed from Baroda for corruption during Northbrook\'s rule?',
+    options: [
+      { text: 'Malharrao Gaekwad', isCorrect: true },
+      { text: 'Bal Gangadhar Tilak', isCorrect: false },
+      { text: 'Lord Dalhousie', isCorrect: false },
+      { text: 'Sir Thomas Raleigh', isCorrect: false }
+    ]
+  },
+
+  // 7. Lord Lytton (1876 - 1880)
+  {
+    id: 'q30',
+    question: 'Which Act imposed restrictions on the Indian-language press in 1878?',
+    options: [
+      { text: 'Vernacular Press Act', isCorrect: true },
+      { text: 'Press Regulation Act', isCorrect: false },
+      { text: 'Indian Press Act', isCorrect: false },
+      { text: 'Media Control Act', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q31',
+    question: 'What did the Arms Act of 1878 control?',
+    options: [
+      { text: 'Trade of Arms', isCorrect: false },
+      { text: 'Possession and Carrying of Firearms', isCorrect: true },
+      { text: 'Manufacturing of Weapons', isCorrect: false },
+      { text: 'Export of Military Equipment', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q32',
+    question: 'Which war extended British influence in Afghanistan during Lytton\'s tenure?',
+    options: [
+      { text: 'First Anglo-Afghan War', isCorrect: false },
+      { text: 'Second Anglo-Afghan War', isCorrect: true },
+      { text: 'Third Anglo-Afghan War', isCorrect: false },
+      { text: 'Fourth Anglo-Afghan War', isCorrect: false }
+    ]
+  },
+
+  // 8. Lord Ripon (1880 - 1884)
+  {
+    id: 'q33',
+    question: 'Which Act repealed the Vernacular Press Act in 1882?',
+    options: [
+      { text: 'Press Freedom Act', isCorrect: false },
+      { text: 'Repeal of Vernacular Press Act', isCorrect: true },
+      { text: 'Indian Media Act', isCorrect: false },
+      { text: 'Freedom of Press Act', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q34',
+    question: 'What did the First Factory Act of 1881 regulate?',
+    options: [
+      { text: 'Factory Ownership', isCorrect: false },
+      { text: 'Working Conditions', isCorrect: true },
+      { text: 'Trade Practices', isCorrect: false },
+      { text: 'Taxation on Factories', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q35',
+    question: 'Which commission reviewed the education system during Ripon\'s tenure?',
+    options: [
+      { text: 'Wood Commission', isCorrect: false },
+      { text: 'Hunter Commission', isCorrect: true },
+      { text: 'Morley Commission', isCorrect: false },
+      { text: 'Macaulay Commission', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q36',
+    question: 'What was the Ilbert Bill controversy about?',
+    options: [
+      { text: 'Land Reforms', isCorrect: false },
+      { text: 'Judicial Powers', isCorrect: true },
+      { text: 'Educational Reforms', isCorrect: false },
+      { text: 'Taxation Policies', isCorrect: false }
+    ]
+  },
+
+  // 9. Lord Dufferin (1884 - 1888)
+  {
+    id: 'q37',
+    question: 'During Lord Dufferin\'s tenure, which organization was established in 1885?',
+    options: [
+      { text: 'Indian National Congress', isCorrect: true },
+      { text: 'Muslim League', isCorrect: false },
+      { text: 'Hindu Mahasabha', isCorrect: false },
+      { text: 'Swaraj Party', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q38',
+    question: 'Which war resulted in the annexation of Burma during Dufferin\'s rule?',
+    options: [
+      { text: 'First Anglo-Burmese War', isCorrect: false },
+      { text: 'Second Anglo-Burmese War', isCorrect: false },
+      { text: 'Third Anglo-Burmese War', isCorrect: true },
+      { text: 'Fourth Anglo-Burmese War', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q39',
+    question: 'Which Acts regulating land tenancy were passed during Dufferin\'s tenure?',
+    options: [
+      { text: 'Revenue Sharing Acts', isCorrect: false },
+      { text: 'Tenancy Acts', isCorrect: true },
+      { text: 'Land Reform Acts', isCorrect: false },
+      { text: 'Agricultural Acts', isCorrect: false }
+    ]
+  },
+
+  // 10. Lord Lansdowne (1888 - 1894)
+  {
+    id: 'q40',
+    question: 'What did the Second Factory Act of 1893 restrict?',
+    options: [
+      { text: 'Child Labor', isCorrect: false },
+      { text: 'Women\'s Working Hours', isCorrect: true },
+      { text: 'Factory Taxes', isCorrect: false },
+      { text: 'Import of Goods', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q41',
+    question: 'Which Act expanded legislative councils and increased Indian participation in 1892?',
+    options: [
+      { text: 'Indian Councils Act', isCorrect: true },
+      { text: 'Government of India Act', isCorrect: false },
+      { text: 'Legislative Expansion Act', isCorrect: false },
+      { text: 'Participation Act', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q42',
+    question: 'What is the Durand Line?',
+    options: [
+      { text: 'Boundary between India and Pakistan', isCorrect: false },
+      { text: 'Boundary between British India and Afghanistan', isCorrect: true },
+      { text: 'Boundary between India and China', isCorrect: false },
+      { text: 'Boundary between Bengal and Assam', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q43',
+    question: 'From which year did India start regular decennial census?',
+    options: [
+      { text: '1871', isCorrect: false },
+      { text: '1881', isCorrect: true },
+      { text: '1891', isCorrect: false },
+      { text: '1901', isCorrect: false }
+    ]
+  },
+
+  // 11. Lord Curzon (1899 - 1905)
+  {
+    id: 'q44',
+    question: 'Which Act declared the English gold currency as legal tender in 1899?',
+    options: [
+      { text: 'Indian Coinage Act', isCorrect: false },
+      { text: 'Indian Currency Act', isCorrect: false },
+      { text: 'Indian Coinage and Letter Currency Act', isCorrect: true },
+      { text: 'British Currency Act', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q45',
+    question: 'What did the Co-operative Liberal Societies Act of 1906 promote?',
+    options: [
+      { text: 'Cooperative Societies', isCorrect: true },
+      { text: 'Liberal Arts Education', isCorrect: false },
+      { text: 'Industrial Growth', isCorrect: false },
+      { text: 'Trade Unions', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q46',
+    question: 'Which major event sparked the Swadeshi Movement in 1905?',
+    options: [
+      { text: 'Jallianwala Bagh Massacre', isCorrect: false },
+      { text: 'Partition of Bengal', isCorrect: true },
+      { text: 'Dandi March', isCorrect: false },
+      { text: 'Chauri Chaura Incident', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q47',
+    question: 'When was the Intelligence Department established under Curzon?',
+    options: [
+      { text: '1902', isCorrect: false },
+      { text: '1904', isCorrect: false },
+      { text: '1905', isCorrect: true },
+      { text: '1906', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q48',
+    question: 'Which college was established by Lord Curzon in Aligarh?',
+    options: [
+      { text: 'Aligarh Muslim University', isCorrect: false },
+      { text: 'Muslim Anglo Oriental College', isCorrect: true },
+      { text: 'Mayo College', isCorrect: false },
+      { text: 'Hindu College', isCorrect: false }
+    ]
+  },
+
+  // 12. Lord Minto II (1905 - 1910)
+  {
+    id: 'q49',
+    question: 'What did the Morley-Minto Reforms introduce in 1909?',
+    options: [
+      { text: 'Universal Suffrage', isCorrect: false },
+      { text: 'Separate Electorates for Muslims', isCorrect: true },
+      { text: 'Provincial Autonomy', isCorrect: false },
+      { text: 'Dyarchy', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q50',
+    question: 'Which convention resolved differences between Britain and Russia in 1907?',
+    options: [
+      { text: 'Anglo-French Convention', isCorrect: false },
+      { text: 'Anglo-German Convention', isCorrect: false },
+      { text: 'Anglo-Russian Convention', isCorrect: true },
+      { text: 'Anglo-Italian Convention', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q51',
+    question: 'Where was the Muslim League established in 1906?',
+    options: [
+      { text: 'Delhi', isCorrect: false },
+      { text: 'Mumbai', isCorrect: false },
+      { text: 'Dhaka', isCorrect: true },
+      { text: 'Lahore', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q52',
+    question: 'Who introduced the concept of Swaraj at the Calcutta session in 1906?',
+    options: [
+      { text: 'Bal Gangadhar Tilak', isCorrect: false },
+      { text: 'Dadabhai Naoroji', isCorrect: true },
+      { text: 'Lala Lajpat Rai', isCorrect: false },
+      { text: 'Gopal Krishna Gokhale', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q53',
+    question: 'Which incident in 1925 aimed to fund revolutionary activities against British rule?',
+    options: [
+      { text: 'Dandi March', isCorrect: false },
+      { text: 'Kakori Train Robbery', isCorrect: true },
+      { text: 'Chauri Chaura Incident', isCorrect: false },
+      { text: 'Jallianwala Bagh Massacre', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q54',
+    question: 'Who formed the Communist Party of India in 1921?',
+    options: [
+      { text: 'M.N. Roy', isCorrect: true },
+      { text: 'Jawaharlal Nehru', isCorrect: false },
+      { text: 'Bal Gangadhar Tilak', isCorrect: false },
+      { text: 'Subhas Chandra Bose', isCorrect: false }
+    ]
+  },
+
+  // 13. Lord Hardinge II (1910 - 1916)
+  {
+    id: 'q55',
+    question: 'When was the Partition of Bengal annulled?',
+    options: [
+      { text: '1905', isCorrect: false },
+      { text: '1911', isCorrect: true },
+      { text: '1916', isCorrect: false },
+      { text: '1920', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q56',
+    question: 'To which city was the capital of British India moved in 1911?',
+    options: [
+      { text: 'Mumbai', isCorrect: false },
+      { text: 'Delhi', isCorrect: true },
+      { text: 'Kolkata', isCorrect: false },
+      { text: 'Chennai', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q57',
+    question: 'Which organization was established in 1915 to represent Hindu interests?',
+    options: [
+      { text: 'Indian National Congress', isCorrect: false },
+      { text: 'Muslim League', isCorrect: false },
+      { text: 'Hindu Mahasabha', isCorrect: true },
+      { text: 'Swaraj Party', isCorrect: false }
+    ]
+  },
+
+  // 14. Lord Chelmsford (1916 - 1921)
+  {
+    id: 'q58',
+    question: 'Which pact was signed in 1916 between Hindus and Muslims for self-governance?',
+    options: [
+      { text: 'Lucknow Pact', isCorrect: true },
+      { text: 'Lahore Pact', isCorrect: false },
+      { text: 'Poona Pact', isCorrect: false },
+      { text: 'Gandhi-Irwin Pact', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q59',
+    question: 'Which Satyagraha addressed indigo farmers\' grievances in 1917?',
+    options: [
+      { text: 'Champaran Satyagraha', isCorrect: true },
+      { text: 'Bardoli Satyagraha', isCorrect: false },
+      { text: 'Kheda Satyagraha', isCorrect: false },
+      { text: 'Salt Satyagraha', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q60',
+    question: 'What did Montague\'s August Declaration promise?',
+    options: [
+      { text: 'Immediate Independence', isCorrect: false },
+      { text: 'Self-Governance Post-WWI', isCorrect: true },
+      { text: 'Partition of India', isCorrect: false },
+      { text: 'Economic Reforms', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q61',
+    question: 'Which Act introduced Dyarchy in provinces?',
+    options: [
+      { text: 'Government of India Act 1919', isCorrect: true },
+      { text: 'Government of India Act 1935', isCorrect: false },
+      { text: 'Indian Councils Act 1892', isCorrect: false },
+      { text: 'Vernacular Press Act 1878', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q62',
+    question: 'What did the Rowlatt Act of 1919 allow?',
+    options: [
+      { text: 'Universal Suffrage', isCorrect: false },
+      { text: 'Indefinite Detention Without Trial', isCorrect: true },
+      { text: 'Free Press', isCorrect: false },
+      { text: 'Land Reforms', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q63',
+    question: 'Which massacre occurred in 1919 leading to heightened nationalist sentiments?',
+    options: [
+      { text: 'Chauri Chaura Massacre', isCorrect: false },
+      { text: 'Jallianwala Bagh Massacre', isCorrect: true },
+      { text: 'Kakori Train Massacre', isCorrect: false },
+      { text: 'Moplah Massacre', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q64',
+    question: 'Which movements began in response to the Rowlatt Act and Jallianwala Bagh Massacre?',
+    options: [
+      { text: 'Swadeshi and Boycott Movements', isCorrect: false },
+      { text: 'Non-Cooperation and Khilafat Movements', isCorrect: true },
+      { text: 'Civil Disobedience and Quit India Movements', isCorrect: false },
+      { text: 'Satyagraha and Salt March', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q65',
+    question: 'Which commission reviewed the education system in 1882?',
+    options: [
+      { text: 'Hunter Commission', isCorrect: false },
+      { text: 'Morley Commission', isCorrect: false },
+      { text: 'Wood Commission', isCorrect: false },
+      { text: 'Hunter Commission', isCorrect: true }
+    ]
+  },
+  {
+    id: 'q66',
+    question: 'What right was granted to women under Chelmsford\'s reforms?',
+    options: [
+      { text: 'Right to Education', isCorrect: false },
+      { text: 'Right to Vote', isCorrect: true },
+      { text: 'Right to Property', isCorrect: false },
+      { text: 'Right to Work', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q67',
+    question: 'Which office was established in London to manage Indian affairs under Chelmsford?',
+    options: [
+      { text: 'High Commissioner Office', isCorrect: true },
+      { text: 'Indian Embassy', isCorrect: false },
+      { text: 'Colonial Office', isCorrect: false },
+      { text: 'Secretary of State for India', isCorrect: false }
+    ]
+  },
+
+  // 15. Lord Reading (1921 - 1926)
+  {
+    id: 'q68',
+    question: 'Which rebellion took place in Kerala in 1921?',
+    options: [
+      { text: 'Moplah Rebellion', isCorrect: true },
+      { text: 'Kuka Rebellion', isCorrect: false },
+      { text: 'Champaran Rebellion', isCorrect: false },
+      { text: 'Bardoli Rebellion', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q69',
+    question: 'Who led the Chauri Chaura Incident in 1922?',
+    options: [
+      { text: 'M.N. Roy', isCorrect: false },
+      { text: 'Bhagat Singh', isCorrect: false },
+      { text: 'Khudiram Bose and Prafulla Kumar Chaki', isCorrect: true },
+      { text: 'Bal Gangadhar Tilak', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q70',
+    question: 'Which party was established by Motilal Nehru in 1922?',
+    options: [
+      { text: 'Indian National Congress', isCorrect: false },
+      { text: 'Swaraj Party', isCorrect: true },
+      { text: 'Muslim League', isCorrect: false },
+      { text: 'Communist Party of India', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q71',
+    question: 'What significant event related to civil services began in 1922?',
+    options: [
+      { text: 'Establishment of IAS', isCorrect: false },
+      { text: 'Civil Services Examination in Allahabad', isCorrect: true },
+      { text: 'Formation of IFS', isCorrect: false },
+      { text: 'Introduction of UPSC', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q72',
+    question: 'Which incident in 1925 aimed to disrupt British infrastructure?',
+    options: [
+      { text: 'Dandi March', isCorrect: false },
+      { text: 'Kakori Train Robbery', isCorrect: true },
+      { text: 'Chauri Chaura Incident', isCorrect: false },
+      { text: 'Jallianwala Bagh Massacre', isCorrect: false }
+    ]
+  },
+
+  // 16. Lord Irwin (1926 - 1931)
+  {
+    id: 'q73',
+    question: 'Which commission arrived in India in 1927 without Indian representation?',
+    options: [
+      { text: 'Simon Commission', isCorrect: true },
+      { text: 'Nehru Commission', isCorrect: false },
+      { text: 'Cripps Mission', isCorrect: false },
+      { text: 'Round Table Conference', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q74',
+    question: 'What did the Nehru Report of 1928 propose?',
+    options: [
+      { text: 'Complete Independence', isCorrect: false },
+      { text: 'Constitutional Reforms', isCorrect: true },
+      { text: 'Partition of India', isCorrect: false },
+      { text: 'Economic Reforms', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q75',
+    question: 'Which declaration was made by Congress in 1929 regarding self-rule?',
+    options: [
+      { text: 'Lucknow Declaration', isCorrect: false },
+      { text: 'Diwali Declaration', isCorrect: true },
+      { text: 'Lahore Declaration', isCorrect: false },
+      { text: 'Poona Declaration', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q76',
+    question: 'What was the main objective of the Dandi March in 1930?',
+    options: [
+      { text: 'Protest against land taxes', isCorrect: false },
+      { text: 'Protest against salt tax', isCorrect: true },
+      { text: 'Protest against clothing regulations', isCorrect: false },
+      { text: 'Protest against education reforms', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q77',
+    question: 'Which pact was signed in 1931 between Gandhi and Irwin?',
+    options: [
+      { text: 'Lucknow Pact', isCorrect: false },
+      { text: 'Poona Pact', isCorrect: false },
+      { text: 'Gandhi-Irwin Pact', isCorrect: true },
+      { text: 'Swaraj Pact', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q78',
+    question: 'Which conference discussed India\'s constitutional reforms in 1930?',
+    options: [
+      { text: 'Second Round Table Conference', isCorrect: false },
+      { text: 'First Round Table Conference', isCorrect: true },
+      { text: 'Third Round Table Conference', isCorrect: false },
+      { text: 'Fourth Round Table Conference', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q79',
+    question: 'What was the outcome of the Gandhi-Irwin Pact?',
+    options: [
+      { text: 'Suspension of Civil Disobedience Movement', isCorrect: true },
+      { text: 'Partition of India', isCorrect: false },
+      { text: 'Complete Independence', isCorrect: false },
+      { text: 'Formation of Swaraj Party', isCorrect: false }
+    ]
+  },
+
+  // 17. Lord Willingdon (1931 - 1936)
+  {
+    id: 'q80',
+    question: 'What did the Communal Award of 1932 propose?',
+    options: [
+      { text: 'Universal Suffrage', isCorrect: false },
+      { text: 'Separate Electorates for Dalits', isCorrect: true },
+      { text: 'Abolition of Caste System', isCorrect: false },
+      { text: 'Land Reforms', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q81',
+    question: 'Which pact was agreed upon between Gandhi and Dr. B.R. Ambedkar in 1932?',
+    options: [
+      { text: 'Lucknow Pact', isCorrect: false },
+      { text: 'Poona Pact', isCorrect: true },
+      { text: 'Gandhi-Irwin Pact', isCorrect: false },
+      { text: 'Swaraj Pact', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q82',
+    question: 'Which Act introduced provincial autonomy in 1935?',
+    options: [
+      { text: 'Government of India Act 1919', isCorrect: false },
+      { text: 'Government of India Act 1935', isCorrect: true },
+      { text: 'Indian Councils Act 1892', isCorrect: false },
+      { text: 'Vernacular Press Act 1878', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q83',
+    question: 'Who was the chairman of the Famine Commission?',
+    options: [
+      { text: 'Andrew Fraser', isCorrect: false },
+      { text: 'Colin Manrick', isCorrect: false },
+      { text: 'Sir Thomas Raleigh', isCorrect: false },
+      { text: 'Antony McDonald', isCorrect: true }
+    ]
+  },
+
+  // 18. Major Commissions and Their Chairmen
+  {
+    id: 'q84',
+    question: 'Who chaired the Police Commission focused on police reforms?',
+    options: [
+      { text: 'Andrew Fraser', isCorrect: true },
+      { text: 'Colin Manrick', isCorrect: false },
+      { text: 'Sir Thomas Raleigh', isCorrect: false },
+      { text: 'Antony McDonald', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q85',
+    question: 'Which commission was led by Sir Thomas Raleigh?',
+    options: [
+      { text: 'Police Commission', isCorrect: false },
+      { text: 'Irrigation Commission', isCorrect: false },
+      { text: 'University Commission', isCorrect: true },
+      { text: 'Famine Commission', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q86',
+    question: 'Who was the chairman of the Irrigation Commission?',
+    options: [
+      { text: 'Andrew Fraser', isCorrect: false },
+      { text: 'Colin Manrick', isCorrect: true },
+      { text: 'Sir Thomas Raleigh', isCorrect: false },
+      { text: 'Antony McDonald', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q87',
+    question: 'Which commission aimed at solving famine issues was chaired by Antony McDonald?',
+    options: [
+      { text: 'Police Commission', isCorrect: false },
+      { text: 'Irrigation Commission', isCorrect: false },
+      { text: 'University Commission', isCorrect: false },
+      { text: 'Famine Commission', isCorrect: true }
+    ]
+  },
+
+  // 19. Important Movements and Incidents
+  {
+    id: 'q88',
+    question: 'What was the main impact of the Partition of Bengal in 1905?',
+    options: [
+      { text: 'Promoted British goods', isCorrect: false },
+      { text: 'Sparked the Swadeshi Movement', isCorrect: true },
+      { text: 'Led to immediate independence', isCorrect: false },
+      { text: 'Strengthened British administration', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q89',
+    question: 'When was the Partition of Bengal annulled?',
+    options: [
+      { text: '1905', isCorrect: false },
+      { text: '1911', isCorrect: true },
+      { text: '1916', isCorrect: false },
+      { text: '1920', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q90',
+    question: 'Which movement began after the Jallianwala Bagh Massacre?',
+    options: [
+      { text: 'Swadeshi Movement', isCorrect: false },
+      { text: 'Non-Cooperation Movement', isCorrect: true },
+      { text: 'Civil Disobedience Movement', isCorrect: false },
+      { text: 'Khilafat Movement', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q91',
+    question: 'Which event heightened nationalist sentiments against British rule in 1919?',
+    options: [
+      { text: 'Champaran Satyagraha', isCorrect: false },
+      { text: 'Jallianwala Bagh Massacre', isCorrect: true },
+      { text: 'Chauri Chaura Incident', isCorrect: false },
+      { text: 'Kakori Train Robbery', isCorrect: false }
+    ]
+  },
+
+  // 20. Educational and Social Reforms
+  {
+    id: 'q92',
+    question: 'Which commission emphasized primary education in local languages and promoted women\'s education?',
+    options: [
+      { text: 'Hunter Commission', isCorrect: true },
+      { text: 'Morley Commission', isCorrect: false },
+      { text: 'Wood Commission', isCorrect: false },
+      { text: 'Macaulay Commission', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q93',
+    question: 'Which college was founded to educate the Indian elite in 1872?',
+    options: [
+      { text: 'Aligarh Muslim University', isCorrect: false },
+      { text: 'Mayo College', isCorrect: true },
+      { text: 'Presidency College', isCorrect: false },
+      { text: 'Banaras Hindu University', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q94',
+    question: 'What was the significance of the Wood Despatch of 1854?',
+    options: [
+      { text: 'Foundation of modern education system', isCorrect: true },
+      { text: 'Introduction of railways', isCorrect: false },
+      { text: 'Establishment of High Courts', isCorrect: false },
+      { text: 'Implementation of Doctrine of Lapse', isCorrect: false }
+    ]
+  },
+
+  // 21. Summary of Legislative Acts
+  {
+    id: 'q95',
+    question: 'Which Act introduced competitive examinations for officer appointments in 1853?',
+    options: [
+      { text: 'Charter Act', isCorrect: true },
+      { text: 'Government of India Act', isCorrect: false },
+      { text: 'Public Service Act', isCorrect: false },
+      { text: 'Colonial Administration Act', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q96',
+    question: 'Which Act legalized the remarriage of widows in 1856?',
+    options: [
+      { text: 'Widow Remarriage Act', isCorrect: true },
+      { text: 'Widow\'s Protection Act', isCorrect: false },
+      { text: 'Social Reform Act', isCorrect: false },
+      { text: 'Marriage Act', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q97',
+    question: 'What was the purpose of the Government of India Act 1858?',
+    options: [
+      { text: 'Annexation of princely states', isCorrect: false },
+      { text: 'Transfer of control to British Crown', isCorrect: true },
+      { text: 'Introduction of railways', isCorrect: false },
+      { text: 'Establishment of High Courts', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q98',
+    question: 'Which Act allowed separate electorates for Muslims?',
+    options: [
+      { text: 'Morley-Minto Reforms', isCorrect: true },
+      { text: 'Government of India Act 1919', isCorrect: false },
+      { text: 'Indian Councils Act 1892', isCorrect: false },
+      { text: 'Vernacular Press Act 1878', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q99',
+    question: 'Which Act granted women the right to vote under Chelmsford\'s reforms?',
+    options: [
+      { text: 'Government of India Act 1919', isCorrect: true },
+      { text: 'Indian Councils Act 1892', isCorrect: false },
+      { text: 'Public Service Commission Act', isCorrect: false },
+      { text: 'Indian Universities Act', isCorrect: false }
+    ]
+  },
+  {
+    id: 'q100',
+    question: 'Which Act allowed indefinite detention without trial, causing widespread discontent?',
+    options: [
+      { text: 'Government of India Act 1919', isCorrect: false },
+      { text: 'Rowlatt Act', isCorrect: true },
+      { text: 'Vernacular Press Act', isCorrect: false },
+      { text: 'Morley-Minto Reforms', isCorrect: false }
+    ]
+  }
+];
+
+
+
+
+
+        // Function to shuffle an array using Fisher-Yates algorithm
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // Function to render the questions dynamically
+        function renderQuestions() {
+            const quizForm = document.getElementById('quizForm');
+            const questionsArray = getQuestions(); // Retrieve the questions array
+            if (!questionsArray || !Array.isArray(questionsArray) || questionsArray.length < 25) {
+                quizForm.innerHTML = '<p>Insufficient questions available. Please ensure there are at least 25 questions in the questions array.</p>';
+                return;
+            }
+
+            // Randomly select 25 questions from the available questions
+            const selectedQuestions = getRandomQuestions(questionsArray, 25);
+
+            // Assign shuffledQuestions to the global variable
+            shuffledQuestions = shuffleArray([...selectedQuestions]); // Create a copy and shuffle
+
+            shuffledQuestions.forEach((q, index) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.classList.add('question');
+                questionDiv.id = `question-${index + 1}`; // Assign unique ID
+
+                // Question text
+                const questionText = document.createElement('p');
+                questionText.textContent = `${index + 1}. ${q.question}`;
+                questionDiv.appendChild(questionText);
+
+                // Options
+                const optionsDiv = document.createElement('div');
+                optionsDiv.classList.add('options');
+
+                // Shuffle options and assign back to q.options
+                q.options = shuffleArray([...q.options]);
+                const shuffledOptions = q.options;
+
+                // Assign labels A, B, C, D dynamically
+                const labels = ['A', 'B', 'C', 'D'];
+
+                shuffledOptions.forEach((option, optIndex) => {
+                    const optionId = `${q.id}_option${optIndex + 1}`; // Unique ID for each option
+
+                    const radioInput = document.createElement('input');
+                    radioInput.type = 'radio';
+                    radioInput.id = optionId;
+                    radioInput.name = q.id;
+                    radioInput.value = labels[optIndex]; // Assign label as value
+
+                    const label = document.createElement('label');
+                    label.htmlFor = optionId;
+                    label.textContent = `${labels[optIndex]}) ${option.text}`;
+
+                    optionsDiv.appendChild(radioInput);
+                    optionsDiv.appendChild(label);
+
+                    // Add Attempted Class when an option is selected
+                    radioInput.addEventListener('change', function() {
+                        const questionMapLink = document.querySelector(`.question-map .question-link[href="#question-${index + 1}"]`);
+                        if (questionMapLink && !questionMapLink.classList.contains('correct') && !questionMapLink.classList.contains('incorrect')) {
+                            questionMapLink.classList.add('attempted');
+                        }
+                    });
+                });
+
+                questionDiv.appendChild(optionsDiv);
+
+                // Add Feedback Div Below Options
+                const feedbackDiv = document.createElement('div');
+                feedbackDiv.classList.add('feedback');
+                feedbackDiv.id = `feedback-${index + 1}`; // Unique ID for each feedback div
+                questionDiv.appendChild(feedbackDiv);
+
+                quizForm.appendChild(questionDiv);
+            });
+
+            generateQuestionMap(shuffledQuestions.length);
+        }
+
+        // Function to retrieve the questions array
+        function getQuestions() {
+            // Replace this with your actual questions array
+            return questions; // Assuming 'questions' is defined globally
+        }
+
+        // Function to randomly select n questions from the questions array
+        function getRandomQuestions(questionsArray, n) {
+            const shuffled = shuffleArray([...questionsArray]);
+            return shuffled.slice(0, n);
+        }
+
+        // Function to generate the Question Map links
+        function generateQuestionMap(totalQuestions) {
+            const questionLinksDiv = document.getElementById('questionLinks');
+            questionLinksDiv.innerHTML = ''; // Clear any existing links
+
+            for (let i = 1; i <= totalQuestions; i++) {
+                const link = document.createElement('a');
+                link.href = `#question-${i}`;
+                link.classList.add('question-link');
+                link.textContent = `Q${i}`;
+
+                questionLinksDiv.appendChild(link);
+            }
+        }
+
+        // Timer Functionality
+        function startTimer(duration, display) {
+            let timer = duration, minutes, seconds;
+            const countdown = setInterval(function () {
+                minutes = parseInt(timer / 60, 10);
+                seconds = parseInt(timer % 60, 10);
+
+                minutes = minutes < 10 ? "0" + minutes : minutes;
+                seconds = seconds < 10 ? "0" + seconds : seconds;
+
+                display.textContent = minutes + ":" + seconds;
+
+                // Add alert class when time is less than 1 minute
+                if (timer <= 60 && timer > 0) { // 60 seconds = 1 minute
+                    display.classList.add('alert');
+                }
+
+                if (--timer < 0) {
+                    clearInterval(countdown);
+                    autoSubmit();
+                }
+            }, 1000);
+        }
+
+        // Function to automatically submit the quiz when time is up
+        function autoSubmit() {
+            alert("Time's up! The quiz will now be submitted.");
+            checkAnswers();
+        }
+
+        // Initialize the quiz on page load
+        window.onload = function () {
+            renderQuestions(); // Render questions on page load
+            const tenMinutes = 60 * 10, // 10 minutes in seconds
+                  display = document.getElementById('timer');
+            startTimer(tenMinutes, display);
+        };
+
+        // Function to check answers and display the result
+        function checkAnswers() {
+            let score = 0;
+            let totalQuestions = shuffledQuestions.length; // Total number of questions
+
+            shuffledQuestions.forEach((q, index) => { // Iterate over each question
+                const selectedOption = document.querySelector(`input[name="${q.id}"]:checked`);
+                const feedbackDiv = document.getElementById(`feedback-${index + 1}`);
+                
+                if (selectedOption) {
+                    // Get the selected label (A, B, C, D)
+                    const selectedLabel = selectedOption.value;
+                    // Map label to option index
+                    const labelIndex = ['A', 'B', 'C', 'D'].indexOf(selectedLabel);
+                    if (labelIndex !== -1 && q.options[labelIndex].isCorrect) {
+                        score += 1; // Add 1 mark for correct answer
+
+                        // Mark the question link as correct in the Question Map
+                        const questionMapLink = document.querySelector(`.question-map .question-link[href="#question-${index + 1}"]`);
+                        if (questionMapLink) {
+                            questionMapLink.classList.add('correct');
+                            questionMapLink.classList.remove('incorrect', 'attempted');
+                        }
+
+                        // Update Feedback Below the Question
+                        if (feedbackDiv) {
+                            feedbackDiv.textContent = 'Right';
+                            feedbackDiv.classList.add('right');
+                            feedbackDiv.classList.remove('wrong', 'not-attempted');
+                        }
+                    } else {
+                        score -= 0.5; // Deduct 0.5 marks for incorrect answer
+
+                        // Mark the question link as incorrect in the Question Map
+                        const questionMapLink = document.querySelector(`.question-map .question-link[href="#question-${index + 1}"]`);
+                        if (questionMapLink) {
+                            questionMapLink.classList.add('incorrect');
+                            questionMapLink.classList.remove('correct', 'attempted');
+                        }
+
+                        // Update Feedback Below the Question
+                        if (feedbackDiv) {
+                            feedbackDiv.textContent = 'Wrong';
+                            feedbackDiv.classList.add('wrong');
+                            feedbackDiv.classList.remove('right', 'not-attempted');
+                        }
+                    }
+                } else {
+                    // If the question was not answered, mark as not attempted
+                    const questionMapLink = document.querySelector(`.question-map .question-link[href="#question-${index + 1}"]`);
+                    if (questionMapLink) {
+                        // Remove both classes if the question was not answered
+                        questionMapLink.classList.remove('correct', 'incorrect', 'attempted');
+                    }
+
+                    // Update Feedback Below the Question
+                    if (feedbackDiv) {
+                        feedbackDiv.textContent = 'Not Attempted';
+                        feedbackDiv.classList.add('not-attempted');
+                        feedbackDiv.classList.remove('right', 'wrong');
+                    }
+                }
+            });
+
+            // Round the score to one decimal place
+            score = Math.round(score * 10) / 10;
+
+            // Update the result in the Question Map Sidebar
+            const resultDiv = document.getElementById('result');
+            resultDiv.textContent = `You scored ${score} out of ${totalQuestions}`;
+
+            // Update the result below the questions list
+            const resultDivBelow = document.getElementById('resultBelow');
+            resultDivBelow.textContent = `You scored ${score} out of ${totalQuestions}`;
+
+            // Disable all inputs to prevent changes after submission
+            const inputs = document.querySelectorAll('input[type="radio"]');
+            inputs.forEach(input => {
+                input.disabled = true;
+            });
+
+            // Disable the submit buttons to prevent multiple submissions
+            const submitButton = document.getElementById('submitBtn');
+            submitButton.disabled = true;
+
+            const submitButtonBelow = document.getElementById('submitBtnBelow');
+            if (submitButtonBelow) {
+                submitButtonBelow.disabled = true;
+            }
+        }
+
+        // Toggle Question Map on small screens
+        const toggleBtn = document.getElementById('toggleQuestionMap');
+        const questionMap = document.getElementById('questionMap');
+
+        toggleBtn.addEventListener('click', () => {
+            questionMap.classList.toggle('active');
+        });
+    </script>
+</body>
+</html>
